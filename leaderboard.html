@@ -60,7 +60,17 @@
         </div>
     </div>
     <script src="js/auth.js"></script>
+    <script src="js/audio.js"></script>
     <script>
+        // Play scoreboard sound when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.audioSystem) {
+                setTimeout(() => {
+                    window.audioSystem.playScoreboardSound();
+                }, 500); // Small delay for audio system to initialize
+            }
+        });
+        
         // Leaderboard loading will be handled by PHP API
         async function loadLeaderboard() {
             const sizeFilter = document.getElementById('leaderboard-size-filter').value;

@@ -59,6 +59,20 @@
             <p>&copy; 2025 Santa's Workshop Puzzle Game</p>
         </footer>
     </div>
+    <script src="js/audio.js"></script>
+    <script>
+        // Start background music on homepage
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.audioSystem) {
+                // Optional: Auto-play music (requires user interaction in modern browsers)
+                // Uncomment the line below if you want music to auto-play
+                // window.audioSystem.playBackgroundMusic();
+                
+                // Or add a button to play music
+                console.log('Audio system ready. Music will play when user interacts with page.');
+            }
+        });
+    </script>
 </body>
 </html>
 

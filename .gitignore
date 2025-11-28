@@ -26,31 +26,6 @@ error_log
 php_errors.log
 access.log
 
-# Local development/test files (not needed in repo)
-check_php.bat
-find_php.bat
-start_server.bat
-test_installation.ps1
-test_setup.php
-
-# Setup/Installation guides (local only)
-FIX_CONNECTION_REFUSED.md
-INSTALLATION_STATUS.md
-XAMPP_INSTALLATION_GUIDE.md
-XAMPP_NEXT_STEPS.md
-XAMPP_QUICK_STEPS.txt
-START_HERE.txt
-
-# Environment and config files with sensitive data
-# Keep config.php structure but users should configure their own
-.env
-config.local.php
-
-# Database dumps (if any)
-*.sql.backup
-*.sql.bak
-database_backup/
-
 # Session files
 sessions/
 tmp/
@@ -71,3 +46,17 @@ package-lock.json
 uploads/
 user_uploads/
 
+# Project proposal PDF (not needed in repo)
+Project Proposal*.pdf
+
+# Old Assets folder (audio files are in assets/audio/)
+Assets/
+
+# Environment and config files with sensitive data
+.env
+config.local.php
+
+# Database dumps (if any)
+*.sql.backup
+*.sql.bak
+database_backup/

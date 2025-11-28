@@ -19,18 +19,28 @@ class AudioSystem {
      * Initialize audio elements
      */
     initializeAudio() {
-        // Background music (will be loaded from assets/audio/)
-        this.backgroundMusic = new Audio();
-        this.backgroundMusic.loop = true;
+        // Background music - homepage part 1 (loops to part 2)
+        this.backgroundMusic = new Audio('assets/hompagepart1.wav');
+        this.backgroundMusicPart2 = new Audio('assets/hompagepart2.wav');
+        this.backgroundMusic.loop = false; // Will transition to part 2
+        this.backgroundMusicPart2.loop = true; // Part 2 loops
         this.backgroundMusic.volume = this.currentVolume * this.musicIntensity;
+        this.backgroundMusicPart2.volume = this.currentVolume * this.musicIntensity;
+        
+        // Set up transition from part 1 to part 2
+        this.backgroundMusic.addEventListener('ended', () => {
+            this.backgroundMusicPart2.currentTime = 0;
+            this.backgroundMusicPart2.play();
+        });
         
         // Sound effects (create audio objects for each)
         this.sounds = {
-            move: new Audio(),
-            complete: new Audio(),
-            hint: new Audio(),
-            badge: new Audio(),
-            error: new Audio()
+            move: new Audio(), // No specific file yet - optional
+            complete: new Audio('assets/match(new).wav'), // Puzzle completion
+            hint: new Audio(), // Optional
+            badge: new Audio(), // Optional
+            error: new Audio(), // Optional
+            scoreboard: new Audio('assets/scoreboard.wav') // Leaderboard sound
         };
 
         // Set up audio context for progressive intensity
@@ -45,8 +55,15 @@ class AudioSystem {
      * Load and play background music
      */
     loadBackgroundMusic(url) {
-        if (this.backgroundMusic) {
-            this.backgroundMusic.src = url || 'assets/audio/background.mp3';
+        if (url) {
+            if (this.backgroundMusic) {
+                this.backgroundMusic.src = url;
+                this.backgroundMusic.load();
+            }
+        }
+        // Default to homepage music if no URL provided
+        if (this.backgroundMusic && !this.backgroundMusic.src) {
+            this.backgroundMusic.src = 'assets/hompagepart1.wav';
             this.backgroundMusic.load();
         }
     }
@@ -62,6 +79,19 @@ class AudioSystem {
             this.isMusicPlaying = true;
         }
     }
+    
+    /**
+     * Play scoreboard sound
+     */
+    playScoreboardSound() {
+        if (this.sounds.scoreboard && this.soundEffectsEnabled) {
+            this.sounds.scoreboard.volume = 0.7;
+            this.sounds.scoreboard.currentTime = 0;
+            this.sounds.scoreboard.play().catch(e => {
+                console.warn('Could not play scoreboard sound:', e);
+            });
+        }
+    }
 
     /**
      * Stop background music
@@ -70,6 +100,10 @@ class AudioSystem {
         if (this.backgroundMusic && this.isMusicPlaying) {
             this.backgroundMusic.pause();
             this.backgroundMusic.currentTime = 0;
+            if (this.backgroundMusicPart2) {
+                this.backgroundMusicPart2.pause();
+                this.backgroundMusicPart2.currentTime = 0;
+            }
             this.isMusicPlaying = false;
         }
     }
@@ -82,6 +116,9 @@ class AudioSystem {
         this.musicIntensity = Math.max(0.0, Math.min(1.0, intensity));
         if (this.backgroundMusic) {
             this.backgroundMusic.volume = this.currentVolume * this.musicIntensity;
+        }
+        if (this.backgroundMusicPart2) {
+            this.backgroundMusicPart2.volume = this.currentVolume * this.musicIntensity;
         }
     }
 
@@ -228,8 +265,13 @@ class AudioSystem {
 document.addEventListener('DOMContentLoaded', () => {
     window.audioSystem = new AudioSystem();
     
-    // Try to load background music (if file exists)
-    // window.audioSystem.loadBackgroundMusic('assets/audio/background.mp3');
+    // Load and optionally auto-play background music on homepage
+    if (window.location.pathname.includes('index.html') || window.location.pathname === '/' || window.location.pathname.endsWith('/')) {
+        // Auto-play on homepage
+        window.audioSystem.loadBackgroundMusic('assets/hompagepart1.wav');
+        // Optional: auto-play (browsers require user interaction first)
+        // window.audioSystem.playBackgroundMusic();
+    }
     
     // Start with low intensity
     window.audioSystem.setMusicIntensity(0.3);
