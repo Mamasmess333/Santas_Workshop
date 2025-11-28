@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa's List - Leaderboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="main-header">
+            <h1>🎅 Santa's List</h1>
+            <p class="subtitle">Top Puzzle Solvers</p>
+        </header>
+
+        <nav class="page-nav">
+            <a href="index.html">Home</a>
+            <a href="game.html">Play Game</a>
+            <a href="analytics.html">Analytics</a>
+        </nav>
+
+        <div class="leaderboard-controls">
+            <label for="leaderboard-size-filter">Filter by Size:</label>
+            <select id="leaderboard-size-filter">
+                <option value="all">All Sizes</option>
+                <option value="3">3x3</option>
+                <option value="4">4x4</option>
+                <option value="6">6x6</option>
+                <option value="8">8x8</option>
+                <option value="10">10x10</option>
+            </select>
+            <label for="leaderboard-sort">Sort by:</label>
+            <select id="leaderboard-sort">
+                <option value="time">Time (Fastest)</option>
+                <option value="moves">Moves (Fewest)</option>
+                <option value="recent">Most Recent</option>
+            </select>
+        </div>
+
+        <div class="leaderboard-content">
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Puzzle Size</th>
+                        <th>Time</th>
+                        <th>Moves</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    <tr>
+                        <td colspan="6" class="loading">Loading leaderboard...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="js/auth.js"></script>
+    <script>
+        // Leaderboard loading will be handled by PHP API
+        async function loadLeaderboard() {
+            const sizeFilter = document.getElementById('leaderboard-size-filter').value;
+            const sortBy = document.getElementById('leaderboard-sort').value;
+            
+            try {
+                const response = await fetch(`php/leaderboard.php?size=${sizeFilter}&sort=${sortBy}`);
+                const data = await response.json();
+                
+                const tbody = document.getElementById('leaderboard-body');
+                tbody.innerHTML = '';
+                
+                if (data.success && data.leaderboard.length > 0) {
+                    data.leaderboard.forEach((entry, index) => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${index + 1}</td>
+                            <td>${entry.username}</td>
+                            <td>${entry.puzzle_size}x${entry.puzzle_size}</td>
+                            <td>${formatTime(entry.time_seconds)}</td>
+                            <td>${entry.moves}</td>
+                            <td>${new Date(entry.created_at).toLocaleDateString()}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="6" class="no-data">No records yet. Be the first!</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading leaderboard:', error);
+                document.getElementById('leaderboard-body').innerHTML = 
+                    '<tr><td colspan="6" class="error">Error loading leaderboard. Please try again.</td></tr>';
+            }
+        }
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        document.getElementById('leaderboard-size-filter').addEventListener('change', loadLeaderboard);
+        document.getElementById('leaderboard-sort').addEventListener('change', loadLeaderboard);
+        
+        loadLeaderboard();
+    </script>
+</body>
+</html>
+

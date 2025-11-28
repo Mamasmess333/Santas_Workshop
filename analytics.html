@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Santa's Workshop</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="main-header">
+            <h1>📊 Your Analytics</h1>
+            <p class="subtitle">Track Your Progress</p>
+        </header>
+
+        <nav class="page-nav">
+            <a href="index.html">Home</a>
+            <a href="game.html">Play Game</a>
+            <a href="leaderboard.html">Santa's List</a>
+        </nav>
+
+        <div class="analytics-content">
+            <div class="analytics-section">
+                <h2>Personal Bests</h2>
+                <div id="personal-bests" class="stats-grid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="analytics-section">
+                <h2>Statistics</h2>
+                <div id="statistics" class="stats-grid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="analytics-section">
+                <h2>Game History</h2>
+                <div id="game-history" class="history-list">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="analytics-section">
+                <h2>Achievements</h2>
+                <div id="achievements" class="achievements-grid">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/auth.js"></script>
+    <script>
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('php/analytics.php?type=player_behavior');
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayAnalytics(data);
+                }
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+        
+        function displayAnalytics(data) {
+            // Personal Bests
+            const personalBests = document.getElementById('personal-bests');
+            // Statistics
+            const statistics = document.getElementById('statistics');
+            // Game History
+            const gameHistory = document.getElementById('game-history');
+            // Achievements
+            const achievements = document.getElementById('achievements');
+            
+            // Implementation will be completed with backend integration
+        }
+        
+        loadAnalytics();
+    </script>
+</body>
+</html>
+

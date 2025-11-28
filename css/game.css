@@ -1,0 +1,438 @@
+/* Game-Specific Styles */
+.game-container {
+    min-height: 100vh;
+    padding: var(--spacing-md);
+    background: var(--bg-workshop);
+}
+
+.game-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.game-header h1 {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    color: var(--christmas-red);
+    margin-bottom: var(--spacing-md);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Game Controls Panel */
+.game-controls-panel {
+    background: var(--bg-secondary);
+    padding: var(--spacing-md);
+    border-radius: 10px;
+    border: 2px solid var(--christmas-green);
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.game-info {
+    display: flex;
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.info-label {
+    color: var(--text-secondary);
+    font-weight: bold;
+}
+
+#timer, #move-counter, #difficulty-level {
+    color: var(--christmas-gold);
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+#puzzle-size-select {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 2px solid var(--christmas-green);
+    border-radius: 5px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    cursor: pointer;
+}
+
+.control-buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+/* Puzzle Grid */
+.game-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+    margin-bottom: var(--spacing-lg);
+    position: relative;
+}
+
+.puzzle-grid {
+    display: grid;
+    gap: 4px;
+    background: var(--bg-secondary);
+    padding: 10px;
+    border-radius: 10px;
+    border: 3px solid var(--christmas-gold);
+    box-shadow: var(--shadow-lg);
+}
+
+.puzzle-grid.size-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.puzzle-grid.size-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.puzzle-grid.size-6 {
+    grid-template-columns: repeat(6, 1fr);
+}
+
+.puzzle-grid.size-8 {
+    grid-template-columns: repeat(8, 1fr);
+}
+
+.puzzle-grid.size-10 {
+    grid-template-columns: repeat(10, 1fr);
+}
+
+.puzzle-tile {
+    aspect-ratio: 1;
+    background: var(--christmas-red);
+    border: 3px solid var(--christmas-gold);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    position: relative;
+    user-select: none;
+    box-shadow: var(--shadow-sm);
+}
+
+.puzzle-tile:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow-glow);
+    z-index: 10;
+}
+
+.puzzle-tile.movable {
+    border-color: var(--christmas-green);
+    background: var(--forest-green);
+    animation: pulse 1s infinite;
+}
+
+.puzzle-tile.empty {
+    background: var(--bg-primary);
+    border: 3px dashed var(--christmas-green);
+    cursor: default;
+}
+
+.puzzle-tile.empty:hover {
+    transform: none;
+}
+
+.puzzle-tile.hint-highlight {
+    border-color: var(--christmas-gold);
+    background: var(--bright-gold);
+    color: var(--text-dark);
+    animation: glow 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 10px var(--christmas-gold);
+    }
+    50% {
+        box-shadow: 0 0 20px var(--christmas-gold), 0 0 30px var(--christmas-gold);
+    }
+}
+
+/* Tile sizes for different grid sizes */
+.puzzle-grid.size-3 .puzzle-tile {
+    min-width: 80px;
+    min-height: 80px;
+    font-size: 1.2rem;
+}
+
+.puzzle-grid.size-4 .puzzle-tile {
+    min-width: 70px;
+    min-height: 70px;
+    font-size: 1.1rem;
+}
+
+.puzzle-grid.size-6 .puzzle-tile {
+    min-width: 50px;
+    min-height: 50px;
+    font-size: 0.9rem;
+}
+
+.puzzle-grid.size-8 .puzzle-tile {
+    min-width: 40px;
+    min-height: 40px;
+    font-size: 0.8rem;
+}
+
+.puzzle-grid.size-10 .puzzle-tile {
+    min-width: 35px;
+    min-height: 35px;
+    font-size: 0.7rem;
+}
+
+/* Story Overlay */
+.story-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.story-overlay.hidden {
+    display: none;
+}
+
+.story-dialogue {
+    background: var(--bg-secondary);
+    padding: var(--spacing-xl);
+    border-radius: 10px;
+    border: 3px solid var(--christmas-gold);
+    max-width: 600px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+}
+
+.character-portrait {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto var(--spacing-md);
+    border-radius: 50%;
+    border: 3px solid var(--christmas-red);
+    background: var(--bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+}
+
+.dialogue-text {
+    font-size: 1.2rem;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-lg);
+    line-height: 1.8;
+}
+
+.btn-dialogue {
+    background: var(--christmas-green);
+    color: var(--text-primary);
+}
+
+/* Victory Modal */
+.victory-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.victory-modal.hidden {
+    display: none;
+}
+
+.victory-content {
+    background: var(--bg-secondary);
+    padding: var(--spacing-xl);
+    border-radius: 10px;
+    border: 3px solid var(--christmas-gold);
+    text-align: center;
+    max-width: 500px;
+    box-shadow: var(--shadow-lg);
+    animation: victoryEntrance 0.5s ease;
+}
+
+@keyframes victoryEntrance {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.victory-content h2 {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    color: var(--christmas-gold);
+    margin-bottom: var(--spacing-md);
+}
+
+.victory-stats {
+    margin: var(--spacing-lg) 0;
+    font-size: 1.1rem;
+}
+
+.victory-stats p {
+    margin: var(--spacing-sm) 0;
+    color: var(--text-secondary);
+}
+
+.victory-buttons {
+    display: flex;
+    gap: var(--spacing-md);
+    justify-content: center;
+    margin-top: var(--spacing-lg);
+}
+
+/* Power-ups Panel */
+.powerups-panel {
+    background: var(--bg-secondary);
+    padding: var(--spacing-md);
+    border-radius: 10px;
+    border: 2px solid var(--christmas-green);
+    margin-top: var(--spacing-lg);
+}
+
+.powerups-panel h3 {
+    color: var(--christmas-gold);
+    margin-bottom: var(--spacing-md);
+}
+
+.powerups-container {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.powerup-item {
+    background: var(--bg-primary);
+    padding: var(--spacing-sm);
+    border-radius: 5px;
+    border: 2px solid var(--christmas-gold);
+    text-align: center;
+    min-width: 100px;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.powerup-item:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-glow);
+}
+
+.powerup-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.powerup-item.disabled:hover {
+    transform: none;
+}
+
+/* Hint Indicator */
+.hint-indicator {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--christmas-gold);
+    color: var(--text-dark);
+    padding: var(--spacing-md);
+    border-radius: 10px;
+    font-size: 1.5rem;
+    z-index: 1500;
+    box-shadow: var(--shadow-lg);
+    animation: hintPulse 1s infinite;
+}
+
+.hint-indicator.hidden {
+    display: none;
+}
+
+@keyframes hintPulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+}
+
+/* Responsive Game Design */
+@media (max-width: 768px) {
+    .game-controls-panel {
+        flex-direction: column;
+    }
+    
+    .game-info {
+        width: 100%;
+        justify-content: space-around;
+    }
+    
+    .control-buttons {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .puzzle-grid.size-3 .puzzle-tile,
+    .puzzle-grid.size-4 .puzzle-tile {
+        min-width: 60px;
+        min-height: 60px;
+        font-size: 1rem;
+    }
+    
+    .puzzle-grid.size-6 .puzzle-tile {
+        min-width: 40px;
+        min-height: 40px;
+        font-size: 0.8rem;
+    }
+    
+    .puzzle-grid.size-8 .puzzle-tile,
+    .puzzle-grid.size-10 .puzzle-tile {
+        min-width: 30px;
+        min-height: 30px;
+        font-size: 0.7rem;
+    }
+}
+

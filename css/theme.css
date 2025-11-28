@@ -1,0 +1,73 @@
+/* Christmas Theme Variables */
+:root {
+    /* Colors */
+    --christmas-red: #DC143C;
+    --christmas-green: #228B22;
+    --christmas-gold: #FFD700;
+    --warm-red: #C41E3A;
+    --forest-green: #2E7D32;
+    --bright-gold: #FFC107;
+    
+    /* Background Colors */
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-workshop: #3d2a1a;
+    --bg-warm: #4a2c1f;
+    --bg-day: #ffebee;
+    --bg-night: #1a1a2e;
+    
+    /* Text Colors */
+    --text-primary: #ffffff;
+    --text-secondary: #e0e0e0;
+    --text-dark: #1a1a1a;
+    
+    /* Border Colors */
+    --border-red: var(--christmas-red);
+    --border-green: var(--christmas-green);
+    --border-gold: var(--christmas-gold);
+    
+    /* Typography */
+    --font-heading: 'Mountains of Christmas', cursive;
+    --font-body: 'Kalam', sans-serif;
+    
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+    
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+/* Time-based theme variations */
+body.day-theme {
+    --bg-primary: var(--bg-day);
+    --text-primary: var(--text-dark);
+    --text-secondary: #424242;
+}
+
+body.night-theme {
+    --bg-primary: var(--bg-night);
+    --bg-secondary: #2a2a3e;
+}
+
+body.performance-bright {
+    --bg-workshop: #5a3a2a;
+    --shadow-glow: 0 0 30px rgba(255, 215, 0, 0.7);
+}
+
+body.performance-cozy {
+    --bg-workshop: #2a1a0f;
+    --shadow-glow: 0 0 15px rgba(220, 20, 60, 0.5);
+}
+

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Game - Santa's Workshop</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/game.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>🎅 Santa's Workshop Puzzle</h1>
+            <nav class="game-nav">
+                <a href="index.html">Home</a>
+                <a href="leaderboard.html">Santa's List</a>
+                <a href="analytics.html">Analytics</a>
+                <a href="#" id="logout-btn">Logout</a>
+            </nav>
+        </header>
+
+        <div class="game-controls-panel">
+            <div class="game-info">
+                <div class="info-item">
+                    <span class="info-label">Time:</span>
+                    <span id="timer">0s</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Moves:</span>
+                    <span id="move-counter">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Size:</span>
+                    <select id="puzzle-size-select">
+                        <option value="3">3x3</option>
+                        <option value="4" selected>4x4</option>
+                        <option value="6">6x6</option>
+                        <option value="8">8x8</option>
+                        <option value="10">10x10</option>
+                    </select>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Difficulty:</span>
+                    <span id="difficulty-level">Medium</span>
+                </div>
+            </div>
+
+            <div class="control-buttons">
+                <button id="shuffle-btn" class="btn btn-game">Shuffle</button>
+                <button id="reset-btn" class="btn btn-game">Reset</button>
+                <button id="hint-btn" class="btn btn-game">Use Magic ✨</button>
+                <button id="preview-btn" class="btn btn-game">Preview</button>
+            </div>
+        </div>
+
+        <div class="game-area">
+            <div id="puzzle-grid" class="puzzle-grid"></div>
+            <div id="story-overlay" class="story-overlay hidden">
+                <div class="story-dialogue">
+                    <div class="character-portrait" id="character-portrait"></div>
+                    <div class="dialogue-text" id="dialogue-text"></div>
+                    <button class="btn btn-dialogue" id="continue-btn">Continue</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="powerups-panel">
+            <h3>Power-ups</h3>
+            <div id="powerups-container" class="powerups-container">
+                <!-- Power-ups will be dynamically added here -->
+            </div>
+        </div>
+
+        <div id="victory-modal" class="victory-modal hidden">
+            <div class="victory-content">
+                <h2>🎉 Congratulations! 🎉</h2>
+                <p>You solved the puzzle!</p>
+                <div class="victory-stats">
+                    <p>Time: <span id="victory-time"></span></p>
+                    <p>Moves: <span id="victory-moves"></span></p>
+                    <p>Efficiency: <span id="victory-efficiency"></span></p>
+                </div>
+                <div class="victory-buttons">
+                    <button id="play-again-btn" class="btn btn-primary">Play Again</button>
+                    <button id="next-level-btn" class="btn btn-primary">Next Level</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="hint-indicator" class="hint-indicator hidden"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/puzzle.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/adaptive.js"></script>
+    <script src="js/hints.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/victory.js"></script>
+    <script src="js/themes.js"></script>
+    <script src="js/gifts.js"></script>
+    <script src="js/powerups.js"></script>
+    <script src="js/story.js"></script>
+    <script src="js/tracking.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
+
