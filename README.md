@@ -62,10 +62,6 @@ Santa's_workshop/
 - Session security
 - Input validation
 
-## AI Usage Disclosure
-
-This project was developed with assistance from AI coding tools for code structure, algorithm implementation guidance, documentation generation, and code review. All code has been reviewed, tested, and customized for this specific project.
-
 ## License
 
 Educational project for CSC 4370/6370 Web Programming course.
