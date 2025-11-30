@@ -9,7 +9,18 @@ class ThemeSystem {
         this.performanceTheme = 'default';
         this.timeTheme = 'default';
         this.treeLightsOn = false;
-        
+        this.debugTime = null; // {hour, minute} or null
+
+        // Debug: listen for manual time override
+        window.setDebugTime = (hour, minute) => {
+            this.debugTime = { hour, minute };
+            this.updateTimeBasedTheme();
+        };
+        window.clearDebugTime = () => {
+            this.debugTime = null;
+            this.updateTimeBasedTheme();
+        };
+
         this.initializeTheme();
         this.updateTimeBasedTheme();
         setInterval(() => this.updateTimeBasedTheme(), 60000); // Update every minute
@@ -28,14 +39,20 @@ class ThemeSystem {
      * Update theme based on time of day
      */
     updateTimeBasedTheme() {
-        const now = new Date();
-        const hour = now.getHours();
-        const minutes = now.getMinutes();
+        let hour, minutes;
+        if (this.debugTime) {
+            hour = this.debugTime.hour;
+            minutes = this.debugTime.minute;
+        } else {
+            const now = new Date();
+            hour = now.getHours();
+            minutes = now.getMinutes();
+        }
         const timeInMinutes = hour * 60 + minutes;
-        
+
         // 7:30 PM = 19:30 = 1170 minutes
         const sunsetTime = 19 * 60 + 30; // 7:30 PM
-        
+
         if (timeInMinutes >= sunsetTime || timeInMinutes < 6 * 60) {
             // Night time (after 7:30 PM or before 6 AM)
             this.timeTheme = 'night';
@@ -45,7 +62,7 @@ class ThemeSystem {
             this.timeTheme = 'day';
             this.treeLightsOn = false;
         }
-        
+
         this.applyTheme();
     }
 
@@ -59,7 +76,7 @@ class ThemeSystem {
         }
 
         const skillLevel = window.adaptiveSystem.getSkillLevel();
-        
+
         if (skillLevel >= 1.5) {
             // High performance - brighter theme
             this.performanceTheme = 'bright';
@@ -69,7 +86,7 @@ class ThemeSystem {
         } else {
             this.performanceTheme = 'default';
         }
-        
+
         this.applyTheme();
     }
 
@@ -78,26 +95,24 @@ class ThemeSystem {
      */
     applyTheme() {
         const body = document.body;
-        
         // Remove existing theme classes
         body.classList.remove('day-theme', 'night-theme', 'performance-bright', 'performance-cozy');
-        
         // Apply time-based theme
         if (this.timeTheme === 'day') {
             body.classList.add('day-theme');
         } else if (this.timeTheme === 'night') {
             body.classList.add('night-theme');
         }
-        
         // Apply performance-based theme
         if (this.performanceTheme === 'bright') {
             body.classList.add('performance-bright');
         } else if (this.performanceTheme === 'cozy') {
             body.classList.add('performance-cozy');
         }
-        
         // Update tree lighting
         this.updateTreeLighting();
+        // Dispatch themeChange event
+        document.dispatchEvent(new CustomEvent('themeChange', { detail: { timeTheme: this.timeTheme, performanceTheme: this.performanceTheme } }));
     }
 
     /**
@@ -132,7 +147,7 @@ class ThemeSystem {
      */
     async saveThemePreferences() {
         const theme = this.getCurrentTheme();
-        
+
         try {
             const response = await fetch('php/game.php', {
                 method: 'POST',
@@ -144,7 +159,7 @@ class ThemeSystem {
                     theme: theme
                 })
             });
-            
+
             const data = await response.json();
             return data.success;
         } catch (error) {
@@ -157,7 +172,7 @@ class ThemeSystem {
 // Initialize theme system
 document.addEventListener('DOMContentLoaded', () => {
     window.themeSystem = new ThemeSystem();
-    
+
     // Update performance theme when skill changes
     if (window.adaptiveSystem) {
         setInterval(() => {

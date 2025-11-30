@@ -12,7 +12,7 @@ class GameController {
         this.isPaused = false;
         this.isGameActive = false;
         this.gridElement = null;
-        
+
         this.initializeGame();
     }
 
@@ -65,6 +65,9 @@ class GameController {
 
         if (hintBtn) {
             hintBtn.addEventListener('click', () => {
+                if (window.audioSystem && typeof window.audioSystem.playMagicSound === 'function') {
+                    window.audioSystem.playMagicSound();
+                }
                 if (window.hintSystem) {
                     window.hintSystem.showHint();
                 }
@@ -102,7 +105,7 @@ class GameController {
                 const value = grid[row][col];
                 const tile = document.createElement('div');
                 tile.className = 'puzzle-tile';
-                
+
                 if (value === 0) {
                     tile.classList.add('empty');
                 } else {
@@ -173,7 +176,7 @@ class GameController {
         this.gridElement.addEventListener('drop', (e) => {
             e.preventDefault();
             const target = e.target;
-            
+
             if (target.classList.contains('empty') && draggedTile) {
                 const row = parseInt(draggedTile.dataset.row);
                 const col = parseInt(draggedTile.dataset.col);
@@ -277,6 +280,10 @@ class GameController {
         this.moves = 0;
         this.updateMoveCounter();
         this.startGame();
+        // Play shuffle sound effect
+        if (window.audioSystem && typeof window.audioSystem.playShuffleSound === 'function') {
+            window.audioSystem.playShuffleSound();
+        }
     }
 
     /**
@@ -291,6 +298,10 @@ class GameController {
         this.timer = 0;
         this.updateTimer();
         this.updateMoveCounter();
+        // Play reset sound effect
+        if (window.audioSystem && typeof window.audioSystem.playResetSound === 'function') {
+            window.audioSystem.playResetSound();
+        }
     }
 
     /**
@@ -313,7 +324,7 @@ class GameController {
      */
     handleWin() {
         this.stopGame();
-        
+
         if (window.victorySystem) {
             window.victorySystem.showVictory(this.timer, this.puzzle.getMoveCount());
         }
@@ -361,5 +372,10 @@ class GameController {
 // Initialize game when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.gameController = new GameController();
+    // Transition music to game mode
+    if (window.audioSystem) {
+        window.audioSystem.transitionToGameMusic();
+        window.audioSystem.setMusicIntensity(0.5);
+    }
 });
 

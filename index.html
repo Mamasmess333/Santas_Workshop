@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Santa's Workshop - Christmas Puzzle Game</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/theme.css">
-    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
+    <video id="snow-overlay" class="snow-overlay" src="assets/chroma-keyed-snow.webm" autoplay loop muted
+        playsinline></video>
     <div class="container">
         <header class="main-header">
             <h1 class="title">🎅 Santa's Workshop</h1>
@@ -19,28 +25,28 @@
             <div class="welcome-section">
                 <h2>Welcome to the Workshop!</h2>
                 <p class="description">
-                    Help Santa organize his workshop by solving sliding puzzles! 
+                    Help Santa organize his workshop by solving sliding puzzles!
                     The better you play, the harder it gets. Can you master all the challenges?
                 </p>
             </div>
 
-            <div class="features-grid">
-                <div class="feature-card">
+            <div class="features-carousel">
+                <div class="feature-card" data-index="0">
                     <div class="feature-icon">🧩</div>
                     <h3>Multiple Sizes</h3>
                     <p>Play puzzles from 3x3 to 10x10</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card" data-index="1">
                     <div class="feature-icon">🎯</div>
                     <h3>Adaptive Difficulty</h3>
                     <p>Game learns from your skills</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card" data-index="2">
                     <div class="feature-icon">🎁</div>
                     <h3>Gifts & Rewards</h3>
                     <p>Unlock achievements and power-ups</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card" data-index="3">
                     <div class="feature-icon">📖</div>
                     <h3>Christmas Story</h3>
                     <p>Follow Santa and Mrs. Claus's adventure</p>
@@ -48,7 +54,7 @@
             </div>
 
             <div class="action-buttons">
-                <a href="game.html" class="btn btn-primary">Start Playing</a>
+                <a href="game.html" class="btn btn-primary" id="start-playing-btn">Start Playing</a>
                 <a href="login.html" class="btn btn-secondary">Login</a>
                 <a href="register.html" class="btn btn-secondary">Register</a>
                 <a href="leaderboard.html" class="btn btn-secondary">Santa's List</a>
@@ -56,23 +62,137 @@
         </main>
 
         <footer class="main-footer">
-            <p>&copy; 2025 Santa's Workshop Puzzle Game</p>
         </footer>
     </div>
     <script src="js/audio.js"></script>
+    <style>
+        .features-carousel {
+            position: relative;
+            width: 100%;
+            height: 270px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .feature-card {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0;
+            transition: transform 0.7s cubic-bezier(.77, 0, .18, 1), opacity 0.5s;
+            min-width: 180px;
+            max-width: 220px;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.08);
+            padding: 1rem 0.8rem;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .feature-card.active {
+            opacity: 1;
+            z-index: 2;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1.08);
+        }
+
+        .feature-card.enter {
+            opacity: 1;
+            transform: translate(-120%, -50%) scale(1);
+            z-index: 2;
+        }
+
+        .feature-card.center {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1.08);
+            z-index: 3;
+        }
+
+        .feature-card.exit {
+            opacity: 0;
+            transform: translate(120%, -50%) scale(0.95);
+            z-index: 1;
+        }
+    </style>
     <script>
-        // Start background music on homepage
-        document.addEventListener('DOMContentLoaded', () => {
-            if (window.audioSystem) {
-                // Optional: Auto-play music (requires user interaction in modern browsers)
-                // Uncomment the line below if you want music to auto-play
-                // window.audioSystem.playBackgroundMusic();
-                
-                // Or add a button to play music
-                console.log('Audio system ready. Music will play when user interacts with page.');
+        // Features carousel animation (fixed: every card enters from left, exits right, exit anim visible)
+        document.addEventListener('DOMContentLoaded', function () {
+            const cards = Array.from(document.querySelectorAll('.features-carousel .feature-card'));
+            let current = 0;
+            let prev = null;
+            function showCard(idx, prevIdx) {
+                cards.forEach((card, i) => {
+                    // Only hide cards that are not incoming or outgoing
+                    if (i !== idx && i !== prevIdx) {
+                        card.classList.remove('enter', 'center', 'exit', 'active');
+                        card.style.display = 'none';
+                    }
+                });
+                // Show the incoming card and animate from left
+                const incoming = cards[idx];
+                incoming.style.display = '';
+                incoming.classList.remove('center', 'active', 'exit');
+                incoming.classList.add('enter');
+                // Force reflow to ensure transition
+                void incoming.offsetWidth;
+                setTimeout(() => {
+                    incoming.classList.remove('enter');
+                    incoming.classList.add('center', 'active');
+                }, 10);
+                // Animate the outgoing card to the right
+                if (prevIdx !== null && prevIdx !== idx) {
+                    const outgoing = cards[prevIdx];
+                    outgoing.style.display = '';
+                    outgoing.classList.remove('enter', 'center', 'active');
+                    outgoing.classList.add('exit');
+                    // Hide after exit transition (700ms matches CSS)
+                    setTimeout(() => {
+                        outgoing.classList.remove('exit');
+                        outgoing.style.display = 'none';
+                    }, 700);
+                }
             }
+            function nextCard() {
+                let prevIdx = current;
+                current = (current + 1) % cards.length;
+                showCard(current, prevIdx);
+            }
+            // Start carousel
+            showCard(0, null);
+            setInterval(nextCard, 3400);
         });
     </script>
+    if (!musicStarted) {
+    window.audioSystem.playHomepageMusic();
+    window.audioSystem.setMusicIntensity(0.3);
+    musicStarted = true;
+    sessionStorage.setItem('musicStarted', 'true');
+    document.removeEventListener('click', startMusic);
+    }
+    };
+    if (!musicStarted) {
+    document.addEventListener('click', startMusic);
+    } else {
+    window.audioSystem.playHomepageMusic();
+    window.audioSystem.setMusicIntensity(0.3);
+    }
+    // Transition music to game mode on Start Playing click
+    const startPlayingBtn = document.getElementById('start-playing-btn');
+    if (startPlayingBtn) {
+    startPlayingBtn.addEventListener('click', () => {
+    if (window.audioSystem) {
+    window.audioSystem.transitionToGameMusic();
+    window.audioSystem.setMusicIntensity(0.5);
+    }
+    });
+    }
+    }
+    });
+    </script>
 </body>
-</html>
 
+</html>

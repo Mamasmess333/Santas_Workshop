@@ -49,8 +49,11 @@ user_uploads/
 # Project proposal PDF (not needed in repo)
 Project Proposal*.pdf
 
-# Old Assets folder (audio files are in assets/audio/)
+# Old Assets folder (only ignore uppercase `Assets/` from other project)
 Assets/
+
+# Ensure lowercase `assets/` is tracked in this repo
+!assets/
 
 # Environment and config files with sensitive data
 .env

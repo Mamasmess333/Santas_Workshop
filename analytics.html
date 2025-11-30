@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analytics - Santa's Workshop</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/theme.css">
-    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
+    <audio id="login-music" src="assets/skating.wav" loop autoplay></audio>
+    <video id="snow-overlay" class="snow-overlay" src="assets/chroma-keyed-snow.webm" autoplay loop muted
+        playsinline></video>
     <div class="container">
         <header class="main-header">
             <h1>📊 Your Analytics</h1>
@@ -52,12 +59,38 @@
         </div>
     </div>
     <script src="js/auth.js"></script>
+
+    <script>
+        // Play login music on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            var audio = document.getElementById('login-music');
+            if (audio) {
+                audio.play().catch(() => { });
+            }
+        });
+    </script>
+    <script>
+        // Seamless music playback logic for analytics page (no music, but logic is present for consistency)
+        document.addEventListener('DOMContentLoaded', function () {
+            let musicStarted = sessionStorage.getItem('musicStarted') === 'true';
+            const startMusic = () => {
+                if (!musicStarted) {
+                    musicStarted = true;
+                    sessionStorage.setItem('musicStarted', 'true');
+                    document.removeEventListener('click', startMusic);
+                }
+            };
+            if (!musicStarted) {
+                document.addEventListener('click', startMusic);
+            }
+        });
+    </script>
     <script>
         async function loadAnalytics() {
             try {
                 const response = await fetch('php/analytics.php?type=player_behavior');
                 const data = await response.json();
-                
+
                 if (data.success) {
                     displayAnalytics(data);
                 }
@@ -65,7 +98,7 @@
                 console.error('Error loading analytics:', error);
             }
         }
-        
+
         function displayAnalytics(data) {
             // Personal Bests
             const personalBests = document.getElementById('personal-bests');
@@ -75,12 +108,12 @@
             const gameHistory = document.getElementById('game-history');
             // Achievements
             const achievements = document.getElementById('achievements');
-            
+
             // Implementation will be completed with backend integration
         }
-        
+
         loadAnalytics();
     </script>
 </body>
-</html>
 
+</html>

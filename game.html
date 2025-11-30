@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +8,14 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/game.css">
     <link rel="stylesheet" href="css/theme.css">
-    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
+    <video id="snow-overlay" class="snow-overlay" src="assets/chroma-keyed-snow.webm" autoplay loop muted
+        playsinline></video>
     <div class="game-container">
         <header class="game-header">
             <h1>🎅 Santa's Workshop Puzzle</h1>
@@ -76,7 +82,7 @@
 
         <div id="victory-modal" class="victory-modal hidden">
             <div class="victory-content">
-                <h2>🎉 Congratulations! 🎉</h2>
+                <h2>🎁 Congratulations! 🎁</h2>
                 <p>You solved the puzzle!</p>
                 <div class="victory-stats">
                     <p>Time: <span id="victory-time"></span></p>
@@ -107,9 +113,26 @@
     <script src="js/tracking.js"></script>
     <script src="js/auth.js"></script>
     <script>
-        // Music toggle button
+        // Seamless music playback across site after one user click
         document.addEventListener('DOMContentLoaded', () => {
             const musicToggleBtn = document.getElementById('music-toggle-btn');
+            let musicStarted = sessionStorage.getItem('musicStarted') === 'true';
+            const startGameMusic = () => {
+                if (!musicStarted && window.audioSystem) {
+                    window.audioSystem.transitionToGameMusic();
+                    window.audioSystem.setMusicIntensity(0.5);
+                    musicStarted = true;
+                    sessionStorage.setItem('musicStarted', 'true');
+                    document.removeEventListener('click', startGameMusic);
+                }
+            };
+            if (!musicStarted) {
+                document.addEventListener('click', startGameMusic);
+            } else if (window.audioSystem) {
+                window.audioSystem.transitionToGameMusic();
+                window.audioSystem.setMusicIntensity(0.5);
+            }
+            // Music toggle button
             if (musicToggleBtn && window.audioSystem) {
                 musicToggleBtn.addEventListener('click', () => {
                     const isPlaying = window.audioSystem.toggleBackgroundMusic();
@@ -119,5 +142,5 @@
         });
     </script>
 </body>
-</html>
 
+</html>

@@ -1,17 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Santa's List - Leaderboard</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/theme.css">
-    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
+    <video id="snow-overlay" class="snow-overlay" src="assets/chroma-keyed-snow.webm" autoplay loop muted
+        playsinline></video>
     <div class="container">
         <header class="main-header">
-            <h1>🎅 Santa's List</h1>
+            <h1>🎅 The 'Nice' List</h1>
             <p class="subtitle">Top Puzzle Solvers</p>
         </header>
 
@@ -62,27 +68,32 @@
     <script src="js/auth.js"></script>
     <script src="js/audio.js"></script>
     <script>
-        // Play scoreboard sound when page loads
+        // Seamless music playback for leaderboard (scoreboard sound)
         document.addEventListener('DOMContentLoaded', () => {
-            if (window.audioSystem) {
-                setTimeout(() => {
+            let musicStarted = sessionStorage.getItem('musicStarted') === 'true';
+            const startMusic = () => {
+                if (!musicStarted && window.audioSystem) {
                     window.audioSystem.playScoreboardSound();
-                }, 500); // Small delay for audio system to initialize
+                    musicStarted = true;
+                    sessionStorage.setItem('musicStarted', 'true');
+                    document.removeEventListener('click', startMusic);
+                }
+            };
+            if (!musicStarted) {
+                document.addEventListener('click', startMusic);
+            } else if (window.audioSystem) {
+                window.audioSystem.playScoreboardSound();
             }
         });
-        
         // Leaderboard loading will be handled by PHP API
         async function loadLeaderboard() {
             const sizeFilter = document.getElementById('leaderboard-size-filter').value;
             const sortBy = document.getElementById('leaderboard-sort').value;
-            
             try {
                 const response = await fetch(`php/leaderboard.php?size=${sizeFilter}&sort=${sortBy}`);
                 const data = await response.json();
-                
                 const tbody = document.getElementById('leaderboard-body');
                 tbody.innerHTML = '';
-                
                 if (data.success && data.leaderboard.length > 0) {
                     data.leaderboard.forEach((entry, index) => {
                         const row = document.createElement('tr');
@@ -101,22 +112,19 @@
                 }
             } catch (error) {
                 console.error('Error loading leaderboard:', error);
-                document.getElementById('leaderboard-body').innerHTML = 
+                document.getElementById('leaderboard-body').innerHTML =
                     '<tr><td colspan="6" class="error">Error loading leaderboard. Please try again.</td></tr>';
             }
         }
-        
         function formatTime(seconds) {
             const mins = Math.floor(seconds / 60);
             const secs = seconds % 60;
             return `${mins}:${secs.toString().padStart(2, '0')}`;
         }
-        
         document.getElementById('leaderboard-size-filter').addEventListener('change', loadLeaderboard);
         document.getElementById('leaderboard-sort').addEventListener('change', loadLeaderboard);
-        
         loadLeaderboard();
     </script>
 </body>
-</html>
 
+</html>

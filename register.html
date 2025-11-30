@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Santa's Workshop</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/theme.css">
-    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
+    <video id="snow-overlay" class="snow-overlay" src="assets/chroma-keyed-snow.webm" autoplay loop muted
+        playsinline></video>
+    <audio id="register-music" src="assets/white_christmas_instrumental.wav" loop autoplay muted></audio>
     <div class="auth-container">
         <div class="auth-box">
-            <h1>🎁 Join Santa's Workshop!</h1>
+            <h1>🎁 Join Santa's Workshop! 🎁</h1>
             <form id="register-form">
                 <div class="form-group">
                     <label for="reg-username">Username</label>
@@ -42,5 +49,28 @@
     </div>
     <script src="js/auth.js"></script>
 </body>
-</html>
+<script>
+    // Seamless music playback for register page (White Christmas instrumental)
+    document.addEventListener('DOMContentLoaded', function () {
+        var audio = document.getElementById('register-music');
+        let musicStarted = sessionStorage.getItem('musicStarted') === 'true';
+        const startMusic = () => {
+            if (!musicStarted && audio) {
+                audio.muted = false;
+                audio.play().catch(() => { });
+                musicStarted = true;
+                sessionStorage.setItem('musicStarted', 'true');
+                document.removeEventListener('click', startMusic);
+            }
+        };
+        if (!musicStarted) {
+            document.addEventListener('click', startMusic);
+        } else if (audio) {
+            audio.muted = false;
+            audio.play().catch(() => { });
+        }
+    });
+</script>
+</body>
 
+</html>
