@@ -1,54 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Santa's Workshop</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/theme.css" />
     <link
-        href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap"
-        rel="stylesheet">
-</head>
+      href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
 
-<body>
+  <body>
     <audio id="login-music" src="assets/skating.wav" loop autoplay></audio>
-    <video id="snow-overlay" class="snow-overlay" src="assets/chroma-keyed-snow.webm" autoplay loop muted
-        playsinline></video>
+    <video
+      id="snow-overlay"
+      class="snow-overlay"
+      src="assets/chroma-keyed-snow.webm"
+      autoplay
+      loop
+      muted
+      playsinline
+    ></video>
     <div class="auth-container">
-        <div class="auth-box">
-            <h1>🎅 Welcome Back!</h1>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Login</button>
-            </form>
-            <p class="auth-link">
-                Don't have an account? <a href="register.html">Register here</a>
-            </p>
-            <p class="auth-link">
-                <a href="index.html">Back to Home</a>
-            </p>
-            <div id="error-message" class="error-message hidden"></div>
-        </div>
+      <div class="auth-box">
+        <h1>🎅 Welcome Back!</h1>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required />
+          </div>
+          <div class="form-group center-btn">
+            <button type="submit" class="btn btn-primary">Login</button>
+          </div>
+        </form>
+        <p class="auth-link">
+          Don't have an account? <a href="register.html">Register here</a>
+        </p>
+        <p class="auth-link">
+          <a href="index.html">Back to Home</a>
+        </p>
+        <div id="error-message" class="error-message hidden"></div>
+      </div>
     </div>
     <script src="js/auth.js"></script>
+    <style>
+      .center-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        margin-top: 1rem;
+      }
+    </style>
     <script>
-        // Play login music on page load
-        document.addEventListener('DOMContentLoaded', function () {
-            var audio = document.getElementById('login-music');
-            if (audio) {
-                audio.play().catch(() => { });
-            }
-        });
+      // Play login music on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        var audio = document.getElementById("login-music");
+        if (audio) {
+          audio.play().catch(() => {});
+        }
+      });
     </script>
-</body>
-
+  </body>
 </html>

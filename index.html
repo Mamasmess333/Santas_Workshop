@@ -26,7 +26,7 @@
                 <h2>Welcome to the Workshop!</h2>
                 <p class="description">
                     Help Santa organize his workshop by solving sliding puzzles!
-                    The better you play, the harder it gets. Can you master all the challenges?
+                    The better you play, the harder it gets. Can you master all the challenges and help Santa get ready for christmas day??
                 </p>
             </div>
 
@@ -57,7 +57,7 @@
                 <a href="game.html" class="btn btn-primary" id="start-playing-btn">Start Playing</a>
                 <a href="login.html" class="btn btn-secondary">Login</a>
                 <a href="register.html" class="btn btn-secondary">Register</a>
-                <a href="leaderboard.html" class="btn btn-secondary">Santa's List</a>
+                <a href="leaderboard.html" class="btn btn-secondary">The Nice List</a>
             </div>
         </main>
 
@@ -166,32 +166,7 @@
             setInterval(nextCard, 3400);
         });
     </script>
-    if (!musicStarted) {
-    window.audioSystem.playHomepageMusic();
-    window.audioSystem.setMusicIntensity(0.3);
-    musicStarted = true;
-    sessionStorage.setItem('musicStarted', 'true');
-    document.removeEventListener('click', startMusic);
-    }
-    };
-    if (!musicStarted) {
-    document.addEventListener('click', startMusic);
-    } else {
-    window.audioSystem.playHomepageMusic();
-    window.audioSystem.setMusicIntensity(0.3);
-    }
-    // Transition music to game mode on Start Playing click
-    const startPlayingBtn = document.getElementById('start-playing-btn');
-    if (startPlayingBtn) {
-    startPlayingBtn.addEventListener('click', () => {
-    if (window.audioSystem) {
-    window.audioSystem.transitionToGameMusic();
-    window.audioSystem.setMusicIntensity(0.5);
-    }
-    });
-    }
-    }
-    });
+    
     </script>
 </body>
 

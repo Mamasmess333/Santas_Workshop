@@ -36,7 +36,9 @@
                     <label for="reg-password-confirm">Confirm Password</label>
                     <input type="password" id="reg-password-confirm" name="password_confirm" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Register</button>
+                <div class="form-group center-btn">
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </div>
             </form>
             <p class="auth-link">
                 Already have an account? <a href="login.html">Login here</a>
@@ -48,6 +50,15 @@
         </div>
     </div>
     <script src="js/auth.js"></script>
+<style>
+    .center-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        margin-top: 1rem;
+    }
+</style>
 </body>
 <script>
     // Seamless music playback for register page (White Christmas instrumental)
