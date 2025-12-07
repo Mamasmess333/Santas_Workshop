@@ -8,7 +8,7 @@
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'santas_workshop');
 define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_PASS', '443401');
 define('DB_CHARSET', 'utf8mb4');
 
 // Error reporting (disable in production)
@@ -23,6 +23,21 @@ ini_set('session.cookie_secure', 0); // Set to 1 in production with HTTPS
 // Start session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
+}
+
+/**
+ * Get database connection using MySQLi
+ */
+function getMySQLiConnection() {
+    $mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    if ($mysqli->connect_error) {
+        error_log('MySQLi Connect Error: ' . $mysqli->connect_error);
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Database connection failed']);
+        exit;
+    }
+    $mysqli->set_charset(DB_CHARSET);
+    return $mysqli;
 }
 
 /**

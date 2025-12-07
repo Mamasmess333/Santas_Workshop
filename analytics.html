@@ -1,119 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Analytics - Santa's Workshop</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/theme.css" />
     <link
-        href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap"
-        rel="stylesheet">
-</head>
+      href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Kalam:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
 
-<body>
-    <audio id="login-music" src="assets/skating.wav" loop autoplay></audio>
-    <video id="snow-overlay" class="snow-overlay" src="assets/chroma-keyed-snow.webm" autoplay loop muted
-        playsinline></video>
+  <body>
+    <audio id="analytics-music" src="assets/skating.wav" loop autoplay></audio>
+    <video
+      id="snow-overlay"
+      class="snow-overlay"
+      src="assets/chroma-keyed-snow.webm"
+      autoplay
+      loop
+      muted
+      playsinline
+    ></video>
     <div class="container">
-        <header class="main-header">
-            <h1>📊 Your Analytics</h1>
-            <p class="subtitle">Track Your Progress</p>
-        </header>
+      <header class="main-header">
+        <h1>📊 Your Analytics</h1>
+        <p class="subtitle">Track Your Progress</p>
+      </header>
 
-        <nav class="page-nav">
-            <a href="index.html">Home</a>
-            <a href="game.html">Play Game</a>
-            <a href="leaderboard.html">Santa's List</a>
-        </nav>
+      <nav class="page-nav">
+        <a href="index.html">Home</a>
+        <a href="register.html">Register</a>
+        <a href="leaderboard.html">The Nice List</a>
+      </nav>
 
-        <div class="analytics-content">
-            <div class="analytics-section">
-                <h2>Personal Bests</h2>
-                <div id="personal-bests" class="stats-grid">
-                    <!-- Will be populated by JavaScript -->
-                </div>
-            </div>
+      <div
+        id="analytics-login-message"
+        style="
+          display: none;
+          text-align: center;
+          margin: 2em 0;
+          font-size: 1.2em;
+          color: #b00;
+        "
+      >
+        Please <a href="login.html">log in</a> or
+        <a href="register.html">create an account</a> to view your analytics.
+      </div>
 
-            <div class="analytics-section">
-                <h2>Statistics</h2>
-                <div id="statistics" class="stats-grid">
-                    <!-- Will be populated by JavaScript -->
-                </div>
-            </div>
-
-            <div class="analytics-section">
-                <h2>Game History</h2>
-                <div id="game-history" class="history-list">
-                    <!-- Will be populated by JavaScript -->
-                </div>
-            </div>
-
-            <div class="analytics-section">
-                <h2>Achievements</h2>
-                <div id="achievements" class="achievements-grid">
-                    <!-- Will be populated by JavaScript -->
-                </div>
-            </div>
+      <div class="analytics-content">
+        <div class="analytics-section">
+          <h2>Personal Bests</h2>
+          <div id="personal-bests" class="stats-grid">
+            <!-- Will be populated by JavaScript -->
+          </div>
         </div>
+
+        <div class="analytics-section">
+          <h2>Statistics</h2>
+          <div id="statistics" class="stats-grid">
+            <!-- Will be populated by JavaScript -->
+          </div>
+        </div>
+
+        <div class="analytics-section">
+          <h2>Game History</h2>
+          <div id="game-history" class="history-list">
+            <!-- Will be populated by JavaScript -->
+          </div>
+        </div>
+
+        <div class="analytics-section">
+          <h2>Achievements</h2>
+          <div id="achievements" class="achievements-grid">
+            <!-- Will be populated by JavaScript -->
+          </div>
+        </div>
+      </div>
     </div>
     <script src="js/auth.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        setTimeout(async () => {
+          const isAuth = await window.authSystem.checkAuthStatus();
+          const analyticsContent = document.querySelector(".analytics-content");
+          const loginMsg = document.getElementById("analytics-login-message");
+          if (!isAuth) {
+            if (analyticsContent) analyticsContent.style.display = "none";
+            if (loginMsg) loginMsg.style.display = "";
+          } else {
+            if (analyticsContent) analyticsContent.style.display = "";
+            if (loginMsg) loginMsg.style.display = "none";
+          }
+        }, 100);
+      });
+    </script>
 
     <script>
-        // Play login music on page load
-        document.addEventListener('DOMContentLoaded', function () {
-            var audio = document.getElementById('login-music');
-            if (audio) {
-                audio.play().catch(() => { });
-            }
-        });
-    </script>
-    <script>
-        // Seamless music playback logic for analytics page (no music, but logic is present for consistency)
-        document.addEventListener('DOMContentLoaded', function () {
-            let musicStarted = sessionStorage.getItem('musicStarted') === 'true';
-            const startMusic = () => {
-                if (!musicStarted) {
-                    musicStarted = true;
-                    sessionStorage.setItem('musicStarted', 'true');
-                    document.removeEventListener('click', startMusic);
-                }
-            };
-            if (!musicStarted) {
-                document.addEventListener('click', startMusic);
-            }
-        });
-    </script>
-    <script>
-        async function loadAnalytics() {
-            try {
-                const response = await fetch('php/analytics.php?type=player_behavior');
-                const data = await response.json();
-
-                if (data.success) {
-                    displayAnalytics(data);
-                }
-            } catch (error) {
-                console.error('Error loading analytics:', error);
-            }
+      // Play login music on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        var audio = document.getElementById("login-music");
+        if (audio) {
+          audio.play().catch(() => {});
         }
-
-        function displayAnalytics(data) {
-            // Personal Bests
-            const personalBests = document.getElementById('personal-bests');
-            // Statistics
-            const statistics = document.getElementById('statistics');
-            // Game History
-            const gameHistory = document.getElementById('game-history');
-            // Achievements
-            const achievements = document.getElementById('achievements');
-
-            // Implementation will be completed with backend integration
-        }
-
-        loadAnalytics();
+      });
     </script>
-</body>
+    <script>
+      // Seamless music playback logic for analytics page (no music, but logic is present for consistency)
+      document.addEventListener("DOMContentLoaded", function () {
+        let musicStarted = sessionStorage.getItem("musicStarted") === "true";
+        const startMusic = () => {
+          if (!musicStarted) {
+            musicStarted = true;
+            sessionStorage.setItem("musicStarted", "true");
+            document.removeEventListener("click", startMusic);
+          }
+        };
+        if (!musicStarted) {
+          document.addEventListener("click", startMusic);
+        }
+      });
+    </script>
+    <script>
+      async function loadAnalytics() {
+        try {
+          // Fetch all analytics types in parallel, including badges
+          const [behaviorRes, bestsRes, popularityRes, badgesRes] =
+            await Promise.all([
+              fetch("php/analytics.php?type=player_behavior"),
+              fetch("php/analytics.php?type=personal_bests"),
+              fetch("php/analytics.php?type=puzzle_popularity"),
+              fetch("php/analytics.php?type=badges"),
+            ]);
 
+          const behaviorData = await behaviorRes.json();
+          const bestsData = await bestsRes.json();
+          const popularityData = await popularityRes.json();
+          const badgesData = await badgesRes.json();
+
+          if (behaviorData.success) {
+            displayBehavior(behaviorData.behavior);
+          }
+          if (bestsData.success) {
+            displayPersonalBests(bestsData.personal_bests);
+          }
+          if (popularityData.success) {
+            displayStatistics(popularityData.popularity);
+          }
+          if (badgesData.success) {
+            displayAchievements(badgesData.badges);
+          }
+        } catch (error) {
+          console.error("Error loading analytics:", error);
+        }
+      }
+
+      function displayPersonalBests(bests) {
+        const personalBests = document.getElementById("personal-bests");
+        personalBests.innerHTML = "";
+        if (!bests || bests.length === 0) {
+          personalBests.innerHTML = "<p>No personal bests yet.</p>";
+          return;
+        }
+        bests.forEach((b) => {
+          personalBests.innerHTML += `<div class="stat-item"><strong>Puzzle Size:</strong> ${b.puzzle_size}<br><strong>Best Time:</strong> ${b.best_time}s<br><strong>Best Moves:</strong> ${b.best_moves}<br><strong>Total Completions:</strong> ${b.total_completions}</div>`;
+        });
+      }
+
+      function displayBehavior(behavior) {
+        const gameHistory = document.getElementById("game-history");
+        gameHistory.innerHTML = "";
+        if (!behavior || behavior.length === 0) {
+          gameHistory.innerHTML = "<p>No game history yet.</p>";
+          return;
+        }
+        behavior.forEach((b) => {
+          gameHistory.innerHTML += `<div class="history-item"><strong>Puzzle Size:</strong> ${
+            b.puzzle_size
+          }<br><strong>Avg Completion Time:</strong> ${parseFloat(
+            b.avg_completion_time
+          ).toFixed(2)}s<br><strong>Total Games:</strong> ${
+            b.total_games
+          }<br><strong>Win Rate:</strong> ${parseFloat(b.win_rate).toFixed(
+            2
+          )}%<br><strong>Last Played:</strong> ${b.last_played}</div>`;
+        });
+      }
+
+      function displayStatistics(stats) {
+        const statistics = document.getElementById("statistics");
+        statistics.innerHTML = "";
+        if (!stats || stats.length === 0) {
+          statistics.innerHTML = "<p>No statistics available.</p>";
+          return;
+        }
+        stats.forEach((s) => {
+          statistics.innerHTML += `<div class="stat-item"><strong>Puzzle Size:</strong> ${
+            s.puzzle_size
+          }<br><strong>Total Plays:</strong> ${
+            s.total_plays
+          }<br><strong>Avg Completion Rate:</strong> ${parseFloat(
+            s.avg_completion_rate
+          ).toFixed(2)}%<br><strong>Avg Time:</strong> ${parseFloat(
+            s.avg_time
+          ).toFixed(2)}s</div>`;
+        });
+      }
+
+      // Display badges a user has obtained
+      function displayAchievements(badges) {
+        const achievements = document.getElementById("achievements");
+        achievements.innerHTML = "";
+        if (!badges || badges.length === 0) {
+          achievements.innerHTML = "<p>No badges earned yet.</p>";
+          return;
+        }
+        badges.forEach((badge) => {
+          achievements.innerHTML += `<div class="badge-item"><img src="assets/badges/${badge.icon}" alt="${badge.name}" class="badge-icon"><br><strong>${badge.name}</strong><br><span>${badge.description}</span></div>`;
+        });
+      }
+
+      loadAnalytics();
+    </script>
+  </body>
 </html>

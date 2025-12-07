@@ -55,16 +55,51 @@
 
             <div class="action-buttons">
                 <a href="game.html" class="btn btn-primary" id="start-playing-btn">Start Playing</a>
-                <a href="login.html" class="btn btn-secondary">Login</a>
-                <a href="register.html" class="btn btn-secondary">Register</a>
+                <a href="login.html" class="btn btn-secondary" id="login-btn">Login</a>
+                <a href="register.html" class="btn btn-secondary" id="register-btn">Register</a>
+                <a href="analytics.html" class="btn btn-secondary">Analytics</a>
                 <a href="leaderboard.html" class="btn btn-secondary">The Nice List</a>
+                <a href="#" class="btn btn-secondary" id="logout-btn" style="display:none;">Logout</a>
             </div>
+
+            <div id="user-greeting" class="user-greeting" style="text-align:center; font-size:1.2rem; margin-bottom:1rem; margin-top:1.5rem;"></div>
         </main>
 
         <footer class="main-footer">
         </footer>
     </div>
     <script src="js/audio.js"></script>
+    <script src="js/auth.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', async () => {
+                // Wait for AuthSystem to initialize
+                setTimeout(async () => {
+                    const isAuth = await window.authSystem.checkAuthStatus();
+                    const loginBtn = document.getElementById('login-btn');
+                    const registerBtn = document.getElementById('register-btn');
+                    const logoutBtn = document.getElementById('logout-btn');
+                    const greeting = document.getElementById('user-greeting');
+                    if (isAuth && window.authSystem.currentUser) {
+                        if (loginBtn) loginBtn.style.display = 'none';
+                        if (registerBtn) registerBtn.style.display = 'none';
+                        if (logoutBtn) logoutBtn.style.display = '';
+                        if (greeting) {
+                            greeting.textContent = `Hello, ${window.authSystem.currentUser.username}!`;
+                            greeting.classList.remove('hidden');
+                        }
+                        logoutBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            window.authSystem.logout();
+                        });
+                    } else {
+                        if (loginBtn) loginBtn.style.display = '';
+                        if (registerBtn) registerBtn.style.display = '';
+                        if (logoutBtn) logoutBtn.style.display = 'none';
+                        if (greeting) greeting.classList.add('hidden');
+                    }
+                }, 100);
+            });
+        </script>
     <style>
         .features-carousel {
             position: relative;

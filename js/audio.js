@@ -28,7 +28,7 @@ class AudioSystem {
   initializeAudio() {
     // Single background music file, will be swapped for each mode
     this.backgroundMusic = new Audio(this.musicFile);
-    this.backgroundMusic.loop = false;
+    this.backgroundMusic.loop = true;
     this.backgroundMusic.volume = this.currentVolume * this.musicIntensity;
     this.backgroundMusic.preload = "auto";
 
@@ -53,7 +53,7 @@ class AudioSystem {
     const sound = this.sounds["magic"];
     if (sound && this.soundEffectsEnabled) {
       sound.volume = 0.5;
-      sound.currentTime = 0;
+      sound.currentTime = 1;
       sound.play().catch(() => {});
       // Fade out over the last 1 second
       if (sound._magicTimeout) clearTimeout(sound._magicTimeout);
@@ -69,7 +69,7 @@ class AudioSystem {
           if (step >= fadeSteps) {
             clearInterval(sound._magicFadeInterval);
             sound.pause();
-            sound.currentTime = 0;
+            sound.currentTime = 1;
             sound.volume = initialVolume;
           }
         }, fadeDuration / fadeSteps);
@@ -91,21 +91,18 @@ class AudioSystem {
     const sound = this.sounds["reset"];
     if (sound && this.soundEffectsEnabled) {
       sound.volume = 0.4;
-      // Wait for metadata to load if needed
-      if (sound.readyState >= 1 && sound.duration && sound.duration > 3) {
-        sound.currentTime = Math.max(0, sound.duration - 3);
+      // Always wait for loadedmetadata before seeking
+      const playFrom3s = () => {
+        sound.currentTime = 3;
         sound.play().catch(() => {});
-      } else {
+      };
+      if (sound.readyState < 1) {
         sound.addEventListener("loadedmetadata", function handler() {
           sound.removeEventListener("loadedmetadata", handler);
-          sound.currentTime = Math.max(0, sound.duration - 3);
-          sound.play().catch(() => {});
+          playFrom3s();
         });
-        // In case metadata is already loaded
-        if (sound.duration && sound.duration > 3) {
-          sound.currentTime = Math.max(0, sound.duration - 3);
-          sound.play().catch(() => {});
-        }
+      } else {
+        playFrom3s();
       }
     }
   }
@@ -119,9 +116,10 @@ class AudioSystem {
     if (!this.backgroundMusic) return;
     this.stopBackgroundMusic();
     this.backgroundMusic.currentTime = 0;
+    this.backgroundMusic.loop = false;
     this.backgroundMusic.play().catch(() => {});
     this.isMusicPlaying = true;
-    // Loop first 32s
+    // Loop first 32s, then stop (homepage only)
     this.backgroundMusic.ontimeupdate = () => {
       if (this.musicMode === "home" && this.backgroundMusic.currentTime >= 32) {
         this.backgroundMusic.currentTime = 0;
@@ -171,14 +169,20 @@ class AudioSystem {
     this.musicMode = "game";
     if (!this.backgroundMusic) return;
     this.stopBackgroundMusic();
+    // Always start at 33s when navigating to game.html
+    this._swapMusic("game");
     this.backgroundMusic.currentTime = 33;
-    this.backgroundMusic.play().catch(() => {});
-    this.isMusicPlaying = true;
-    // Remove custom looping, loop whole song
+    this.backgroundMusic.loop = false;
     this.backgroundMusic.ontimeupdate = null;
+    this.isMusicPlaying = true;
+    let firstPlay = true;
+    this.backgroundMusic.play().catch(() => {});
     this.backgroundMusic.onended = () => {
       if (this.musicMode === "game") {
-        this.backgroundMusic.currentTime = 33;
+        if (firstPlay) {
+          firstPlay = false;
+          this.backgroundMusic.currentTime = 0;
+        }
         this.backgroundMusic.play();
       }
     };
@@ -404,21 +408,58 @@ class AudioSystem {
 // Initialize audio system
 document.addEventListener("DOMContentLoaded", () => {
   window.audioSystem = new AudioSystem();
-  // Homepage: loop first 32s, but only after user interaction
-  if (
-    window.location.pathname.includes("index.html") ||
-    window.location.pathname === "/" ||
-    window.location.pathname.endsWith("/")
-  ) {
-    let musicStarted = false;
-    const startMusic = () => {
-      if (!musicStarted) {
+  // Global: play music after any user interaction (click/touch/keydown)
+  let musicStarted = sessionStorage.getItem("musicStarted") === "true";
+  const startMusic = () => {
+    if (!musicStarted) {
+      if (window.location.pathname.includes("game.html")) {
+        window.audioSystem.playGameMusic();
+      } else if (window.location.pathname.includes("login.html")) {
+        window.audioSystem.playLoginMusic();
+      } else if (window.location.pathname.includes("register.html")) {
+        window.audioSystem.playLoginMusic();
+      } else if (window.location.pathname.includes("leaderboard.html")) {
+        window.audioSystem._swapMusic("scoreboard");
+        window.audioSystem.backgroundMusic.loop = true;
+        window.audioSystem.backgroundMusic.play().catch(() => {});
+      } else if (window.location.pathname.includes("analytics.html")) {
+        window.audioSystem.playLoginMusic();
+      } else {
         window.audioSystem.playHomepageMusic();
         window.audioSystem.setMusicIntensity(0.3);
-        musicStarted = true;
-        document.removeEventListener("click", startMusic);
       }
-    };
-    document.addEventListener("click", startMusic);
+      musicStarted = true;
+      sessionStorage.setItem("musicStarted", "true");
+      document.removeEventListener("click", startMusic);
+      document.removeEventListener("keydown", startMusic);
+      document.removeEventListener("touchstart", startMusic);
+    }
+  };
+  document.addEventListener("click", startMusic);
+  document.addEventListener("keydown", startMusic);
+  document.addEventListener("touchstart", startMusic);
+
+  // If music was already started in this session, start correct music automatically
+  if (musicStarted) {
+    if (window.location.pathname.includes("game.html")) {
+      window.audioSystem.playGameMusic();
+    } else if (window.location.pathname.includes("login.html")) {
+      window.audioSystem.playLoginMusic();
+    } else if (window.location.pathname.includes("register.html")) {
+      window.audioSystem.playLoginMusic();
+    } else if (window.location.pathname.includes("leaderboard.html")) {
+      window.audioSystem._swapMusic("scoreboard");
+      window.audioSystem.backgroundMusic.loop = true;
+      window.audioSystem.backgroundMusic.play().catch(() => {});
+      // Stop homepage music if playing
+      if (window.audioSystem.musicMode === "home") {
+        window.audioSystem.stopBackgroundMusic();
+      }
+    } else if (window.location.pathname.includes("analytics.html")) {
+      window.audioSystem.playLoginMusic();
+    } else {
+      window.audioSystem.playHomepageMusic();
+      window.audioSystem.setMusicIntensity(0.3);
+    }
   }
 });

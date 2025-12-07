@@ -28,17 +28,18 @@ try {
             if (!isAuthenticated()) {
                 sendJSONResponse(['success' => false, 'message' => 'Authentication required'], 401);
             }
-            
             $puzzleSize = intval($input['puzzle_size'] ?? 4);
             $moves = intval($input['moves'] ?? 0);
             $timeSeconds = intval($input['time_seconds'] ?? 0);
             $completed = boolval($input['completed'] ?? false);
             $difficultyLevel = sanitizeInput($input['difficulty_level'] ?? 'medium');
-            
-            $stmt = $pdo->prepare("INSERT INTO game_sessions (user_id, puzzle_size, difficulty_level, moves, time_seconds, completed) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([getCurrentUserId(), $puzzleSize, $difficultyLevel, $moves, $timeSeconds, $completed]);
-            
-            $sessionId = $pdo->lastInsertId();
+            $mysqli = getMySQLiConnection();
+            $stmt = $mysqli->prepare("INSERT INTO game_sessions (user_id, puzzle_size, difficulty_level, moves, time_seconds, completed) VALUES (?, ?, ?, ?, ?, ?)");
+            $userId = getCurrentUserId();
+            $stmt->bind_param("iisiii", $userId, $puzzleSize, $difficultyLevel, $moves, $timeSeconds, $completed);
+            $stmt->execute();
+            $sessionId = $stmt->insert_id;
+            $stmt->close();
             sendJSONResponse(['success' => true, 'session_id' => $sessionId]);
             break;
             

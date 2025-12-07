@@ -85,28 +85,32 @@ try {
             $puzzleSize = intval($input['puzzle_size'] ?? 4);
             $completionTime = intval($input['completion_time'] ?? 0);
             $moves = intval($input['moves'] ?? 0);
+            $completed = isset($input['completed']) ? boolval($input['completed']) : true;
             $userId = getCurrentUserId();
-            
             // Check if record exists
-            $stmt = $pdo->prepare("SELECT id, total_games FROM player_behavior WHERE user_id = ? AND puzzle_size = ?");
+            $stmt = $pdo->prepare("SELECT id, total_games, win_rate FROM player_behavior WHERE user_id = ? AND puzzle_size = ?");
             $stmt->execute([$userId, $puzzleSize]);
             $existing = $stmt->fetch();
-            
             if ($existing) {
                 // Update existing record
                 $totalGames = intval($existing['total_games']) + 1;
+                // Calculate new win count
+                $prevWins = round(floatval($existing['win_rate']) * intval($existing['total_games']) / 100);
+                $newWins = $completed ? $prevWins + 1 : $prevWins;
+                $newWinRate = $totalGames > 0 ? ($newWins / $totalGames) * 100 : 0;
                 $stmt = $pdo->prepare("
                     UPDATE player_behavior 
                     SET avg_completion_time = (avg_completion_time * total_games + ?) / ?,
                         total_games = ?,
+                        win_rate = ?,
                         last_played = NOW()
                     WHERE user_id = ? AND puzzle_size = ?
                 ");
-                $stmt->execute([$completionTime, $totalGames, $totalGames, $userId, $puzzleSize]);
+                $stmt->execute([$completionTime, $totalGames, $totalGames, $newWinRate, $userId, $puzzleSize]);
             } else {
                 // Create new record
-                $stmt = $pdo->prepare("INSERT INTO player_behavior (user_id, puzzle_size, avg_completion_time, total_games, win_rate) VALUES (?, ?, ?, 1, 100.0)");
-                $stmt->execute([$userId, $puzzleSize, $completionTime]);
+                $stmt = $pdo->prepare("INSERT INTO player_behavior (user_id, puzzle_size, avg_completion_time, total_games, win_rate) VALUES (?, ?, ?, 1, ?)");
+                $stmt->execute([$userId, $puzzleSize, $completionTime, $completed ? 100.0 : 0.0]);
             }
             
             sendJSONResponse(['success' => true]);

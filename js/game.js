@@ -4,6 +4,24 @@
  */
 
 class GameController {
+  /**
+   * Record a loss if the user exits during an active game
+   */
+  async recordLossOnExit() {
+    if (
+      this.isGameActive &&
+      window.trackingSystem &&
+      window.trackingSystem.currentSessionId
+    ) {
+      // Record as incomplete/loss
+      await window.trackingSystem.recordCompletion(
+        this.currentSize,
+        this.timer,
+        this.puzzle ? this.puzzle.getMoveCount() : 0,
+        false
+      );
+    }
+  }
   constructor() {
     this.puzzle = null;
     this.currentSize = 4;
@@ -37,6 +55,7 @@ class GameController {
 
     // Initialize puzzle
     this.puzzle = new Puzzle(this.currentSize);
+    this.puzzle.shuffle();
     this.renderGrid();
 
     // Set up control buttons
@@ -136,6 +155,13 @@ class GameController {
    */
   handleTileClick(row, col) {
     if (!this.isGameActive && !this.isPaused) {
+      // Only start session and timer on first move
+      if (window.trackingSystem && !window.trackingSystem.currentSessionId) {
+        window.trackingSystem.startSession(
+          this.currentSize,
+          this.getDifficultyLevel()
+        );
+      }
       this.startGame();
     }
 
@@ -344,17 +370,38 @@ class GameController {
   handleWin() {
     this.stopGame();
 
+    const moves = this.puzzle.getMoveCount();
+    const time = this.timer;
+
+    // Award power-ups based on completion stats
+    if (window.powerUpSystem) {
+      // >10 min: 3 time freeze
+      if (time > 600) {
+        window.powerUpSystem.unlockPowerUp("timeFreeze", 3);
+      }
+      // >250 moves: 5 undo move
+      if (moves > 250) {
+        window.powerUpSystem.unlockPowerUp("moveUndo", 5);
+      }
+      // Any completion: 3 extra hints
+      window.powerUpSystem.unlockPowerUp("extraHints", 3);
+      // Optionally, show notification
+      if (window.powerUpSystem.showAwardNotification) {
+        let msg = "You earned:";
+        if (time > 600) msg += " 3x Time Freeze";
+        if (moves > 250) msg += (time > 600 ? ", " : " ") + "5x Undo Move";
+        msg += (time > 600 || moves > 250 ? ", " : " ") + "3x Extra Hints!";
+        window.powerUpSystem.showAwardNotification(msg);
+      }
+    }
+
     if (window.victorySystem) {
-      window.victorySystem.showVictory(this.timer, this.puzzle.getMoveCount());
+      window.victorySystem.showVictory(time, moves);
     }
 
     // Track progress
     if (window.trackingSystem) {
-      window.trackingSystem.recordCompletion(
-        this.currentSize,
-        this.timer,
-        this.puzzle.getMoveCount()
-      );
+      window.trackingSystem.recordCompletion(this.currentSize, time, moves);
     }
   }
 
@@ -394,6 +441,78 @@ class GameController {
 
 // Initialize game when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
+  // Navigation/exit warning and loss tracking
+  let exitModal = null;
+  function showExitModal(e) {
+    if (!exitModal) {
+      exitModal = document.createElement("div");
+      exitModal.id = "exit-warning-modal";
+      exitModal.style.position = "fixed";
+      exitModal.style.top = "0";
+      exitModal.style.left = "0";
+      exitModal.style.width = "100vw";
+      exitModal.style.height = "100vh";
+      exitModal.style.background = "rgba(0,0,0,0.7)";
+      exitModal.style.display = "flex";
+      exitModal.style.alignItems = "center";
+      exitModal.style.justifyContent = "center";
+      exitModal.style.zIndex = "9999";
+      exitModal.innerHTML = `<div style="background:#fff;padding:2em 3em;border-radius:10px;text-align:center;max-width:90vw;">
+          <h2>Warning</h2>
+          <p>If you leave this page, your current game will be counted as a loss in your analytics.</p>
+          <button id="exit-modal-stay">Stay on this page</button>
+          <button id="exit-modal-leave">Leave anyway</button>
+        </div>`;
+      document.body.appendChild(exitModal);
+      document.getElementById("exit-modal-stay").onclick = () => {
+        exitModal.style.display = "none";
+      };
+      document.getElementById("exit-modal-leave").onclick = () => {
+        exitModal.style.display = "none";
+        window.removeEventListener("beforeunload", beforeUnloadHandler);
+        window.location.href = e.target.href || "/";
+      };
+    } else {
+      exitModal.style.display = "flex";
+    }
+  }
+
+  function beforeUnloadHandler(event) {
+    if (window.gameController && window.gameController.isGameActive) {
+      // Record loss
+      if (window.trackingSystem && window.trackingSystem.currentSessionId) {
+        window.trackingSystem.recordCompletion(
+          window.gameController.currentSize,
+          window.gameController.timer,
+          window.gameController.puzzle
+            ? window.gameController.puzzle.getMoveCount()
+            : 0,
+          false
+        );
+      }
+      event.preventDefault();
+      event.returnValue =
+        "If you leave, your current game will be counted as a loss.";
+      return event.returnValue;
+    }
+  }
+  window.addEventListener("beforeunload", beforeUnloadHandler);
+
+  // Intercept navigation clicks
+  document.body.addEventListener(
+    "click",
+    function (e) {
+      if (window.gameController && window.gameController.isGameActive) {
+        let el = e.target;
+        while (el && el.tagName !== "A") el = el.parentElement;
+        if (el && el.tagName === "A" && el.href && !el.href.endsWith("#")) {
+          e.preventDefault();
+          showExitModal(e);
+        }
+      }
+    },
+    true
+  );
   window.gameController = new GameController();
   // Transition music to game mode
   if (window.audioSystem) {

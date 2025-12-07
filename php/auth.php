@@ -41,7 +41,7 @@ if ($method === 'POST') {
     $action = $input['action'] ?? null;
     
     if ($action === 'register') {
-        // User registration
+        // User registration (MySQLi)
         $username = sanitizeInput($input['username'] ?? '');
         $email = sanitizeInput($input['email'] ?? '');
         $password = $input['password'] ?? '';
@@ -75,62 +75,112 @@ if ($method === 'POST') {
             ], 400);
         }
         
-        try {
-            $pdo = getDBConnection();
-            
-            // Check if username or email already exists
-            $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
-            $stmt->execute([$username, $email]);
-            
-            if ($stmt->fetch()) {
-                sendJSONResponse([
-                    'success' => false,
-                    'message' => 'Username or email already exists'
-                ], 400);
-            }
-            
-            // Hash password
-            $passwordHash = password_hash($password, PASSWORD_BCRYPT);
-            
-            // Insert user
-            $stmt = $pdo->prepare("INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)");
-            $stmt->execute([$username, $email, $passwordHash]);
-            
-            $userId = $pdo->lastInsertId();
-            
-            // Create user profile
-            $stmt = $pdo->prepare("INSERT INTO user_profiles (user_id, preferences, theme_settings) VALUES (?, '{}', '{}')");
-            $stmt->execute([$userId]);
-            
-            // Create user preferences
-            $stmt = $pdo->prepare("INSERT INTO user_preferences (user_id, difficulty_preference, theme_preference) VALUES (?, 'adaptive', 'default')");
-            $stmt->execute([$userId]);
-            
-            // Set session
-            $_SESSION['user_id'] = $userId;
-            $_SESSION['username'] = $username;
-            
-            sendJSONResponse([
-                'success' => true,
-                'message' => 'Registration successful',
-                'user' => [
-                    'id' => $userId,
-                    'username' => $username,
-                    'email' => $email
-                ]
-            ]);
-            
-        } catch (PDOException $e) {
-            error_log("Registration error: " . $e->getMessage());
+        $mysqli = getMySQLiConnection();
+        $stmt = $mysqli->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
+        if (!$stmt) {
+            error_log('Prepare failed: ' . $mysqli->error);
             sendJSONResponse([
                 'success' => false,
-                'message' => 'Registration failed. Please try again.'
+                'message' => 'Database error: ' . $mysqli->error
             ], 500);
         }
+        $stmt->bind_param("ss", $username, $email);
+        if (!$stmt->execute()) {
+            error_log('Execute failed: ' . $stmt->error);
+            sendJSONResponse([
+                'success' => false,
+                'message' => 'Database error: ' . $stmt->error
+            ], 500);
+        }
+        $stmt->store_result();
+        if ($stmt->num_rows > 0) {
+            sendJSONResponse([
+                'success' => false,
+                'message' => 'Username or email already exists'
+            ], 400);
+        }
+        $stmt->close();
+        
+        // Hash password
+        $passwordHash = password_hash($password, PASSWORD_BCRYPT);
+        
+        // Insert user
+        $stmt = $mysqli->prepare("INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)");
+        if (!$stmt) {
+            error_log('Prepare failed: ' . $mysqli->error);
+            sendJSONResponse([
+                'success' => false,
+                'message' => 'Database error: ' . $mysqli->error
+            ], 500);
+        }
+        $stmt->bind_param("sss", $username, $email, $passwordHash);
+        if (!$stmt->execute()) {
+            error_log('Execute failed: ' . $stmt->error);
+            sendJSONResponse([
+                'success' => false,
+                'message' => 'Database error: ' . $stmt->error
+            ], 500);
+        }
+        $userId = $stmt->insert_id;
+        $stmt->close();
+        
+        // Create user profile
+        $stmt = $mysqli->prepare("INSERT INTO user_profiles (user_id, preferences, theme_settings) VALUES (?, '{}', '{}')");
+        if (!$stmt) {
+            error_log('Prepare failed: ' . $mysqli->error);
+            sendJSONResponse([
+                'success' => false,
+                'message' => 'Database error: ' . $mysqli->error
+            ], 500);
+        }
+        $stmt->bind_param("i", $userId);
+        if (!$stmt->execute()) {
+            error_log('Execute failed: ' . $stmt->error);
+            sendJSONResponse([
+                'success' => false,
+                'message' => 'Database error: ' . $stmt->error
+            ], 500);
+        }
+        $stmt->close();
+        
+        // Create user preferences
+        $stmt = $mysqli->prepare("INSERT INTO user_preferences (user_id, difficulty_preference, theme_preference) VALUES (?, 'adaptive', 'default')");
+        if (!$stmt) {
+            error_log('Prepare failed: ' . $mysqli->error);
+            sendJSONResponse([
+                'success' => false,
+                'message' => 'Database error: ' . $mysqli->error
+            ], 500);
+        }
+        $stmt->bind_param("i", $userId);
+        if (!$stmt->execute()) {
+            error_log('Execute failed: ' . $stmt->error);
+            sendJSONResponse([
+                'success' => false,
+                'message' => 'Database error: ' . $stmt->error
+            ], 500);
+        }
+        $stmt->close();
+        
+        // Set session
+        $_SESSION['user_id'] = $userId;
+        $_SESSION['username'] = $username;
+        
+        sendJSONResponse([
+            'success' => true,
+            'message' => 'Registration successful',
+            'user' => [
+                'id' => $userId,
+                'username' => $username,
+                'email' => $email
+            ]
+        ]);
+        
+        exit;
     }
     
     if ($action === 'login') {
-        // User login
+        // User login (MySQLi)
         $username = sanitizeInput($input['username'] ?? '');
         $password = $input['password'] ?? '';
         
@@ -141,42 +191,36 @@ if ($method === 'POST') {
             ], 400);
         }
         
-        try {
-            $pdo = getDBConnection();
-            
-            // Get user
-            $stmt = $pdo->prepare("SELECT id, username, email, password_hash FROM users WHERE username = ?");
-            $stmt->execute([$username]);
-            $user = $stmt->fetch();
-            
-            if (!$user || !password_verify($password, $user['password_hash'])) {
-                sendJSONResponse([
-                    'success' => false,
-                    'message' => 'Invalid username or password'
-                ], 401);
-            }
-            
-            // Set session
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            
-            sendJSONResponse([
-                'success' => true,
-                'message' => 'Login successful',
-                'user' => [
-                    'id' => $user['id'],
-                    'username' => $user['username'],
-                    'email' => $user['email']
-                ]
-            ]);
-            
-        } catch (PDOException $e) {
-            error_log("Login error: " . $e->getMessage());
+        $mysqli = getMySQLiConnection();
+        $stmt = $mysqli->prepare("SELECT id, username, email, password_hash FROM users WHERE username = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+        $stmt->close();
+        
+        if (!$user || !password_verify($password, $user['password_hash'])) {
             sendJSONResponse([
                 'success' => false,
-                'message' => 'Login failed. Please try again.'
-            ], 500);
+                'message' => 'Invalid username or password'
+            ], 401);
         }
+        
+        // Set session
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $user['username'];
+        
+        sendJSONResponse([
+            'success' => true,
+            'message' => 'Login successful',
+            'user' => [
+                'id' => $user['id'],
+                'username' => $user['username'],
+                'email' => $user['email']
+            ]
+        ]);
+        
+        exit;
     }
     
     if ($action === 'logout') {
