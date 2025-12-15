@@ -17,8 +17,9 @@
   width: 100vw;
   height: 100vh;
   object-fit: cover;
-  z-index: 1;
-  pointer-events: none;
+  z-index: -1; /* ensure it's behind all interactive layers on iOS */
+  pointer-events: none !important; /* iOS Safari: prevent touch capture */
+  touch-action: none; /* extra guard for touch devices */
 }
 
 /* Ensure main content is above the snow overlay */
@@ -30,7 +31,7 @@
 .features-grid,
 .feature-card {
   position: relative;
-  z-index: 2;
+  z-index: 2; /* content above background */
 }
 
 /* Base Styles */

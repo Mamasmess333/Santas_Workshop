@@ -6,9 +6,9 @@
 
 // Database configuration
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'santas_workshop');
-define('DB_USER', 'root');
-define('DB_PASS', '443401');
+define('DB_NAME', 'kharmon15');
+define('DB_USER', 'kharmon15');
+define('DB_PASS', 'kharmon15');
 define('DB_CHARSET', 'utf8mb4');
 
 // Error reporting (disable in production)

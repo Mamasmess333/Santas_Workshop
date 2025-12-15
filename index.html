@@ -22,6 +22,7 @@
         </header>
 
         <main class="landing-content">
+            <div id="db-status" style="padding:8px;margin:8px 0;border-radius:6px;font-size:0.95rem;display:none"></div>
             <div class="welcome-section">
                 <h2>Welcome to the Workshop!</h2>
                 <p class="description">
@@ -68,8 +69,44 @@
         <footer class="main-footer">
         </footer>
     </div>
-    <script src="js/audio.js"></script>
-    <script src="js/auth.js"></script>
+        <script src="js/audio.js"></script>
+        <script src="js/auth.js"></script>
+        <script>
+            (function(){
+                const el = document.getElementById('db-status');
+                if (!el) return;
+                fetch('php/db_status.php', {cache: 'no-store'})
+                    .then(async (res) => {
+                        const ct = res.headers.get('content-type') || '';
+                        if (!ct.includes('application/json')) {
+                            const text = await res.text();
+                            throw new Error('Non-JSON response: ' + text.slice(0,200));
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        el.style.display = 'block';
+                        if (data.connected) {
+                            el.style.background = '#e6ffed';
+                            el.style.border = '1px solid #34d058';
+                            el.style.color = '#1b4b2e';
+                            el.textContent = `DB Connected: host=${data.host}, db=${data.database}`;
+                        } else {
+                            el.style.background = '#ffeef0';
+                            el.style.border = '1px solid #d73a49';
+                            el.style.color = '#86181d';
+                            el.textContent = `DB Connection FAILED: ${data.error || 'unknown error'}`;
+                        }
+                    })
+                    .catch(err => {
+                        el.style.display = 'block';
+                        el.style.background = '#fff5b1';
+                        el.style.border = '1px solid #f9c513';
+                        el.style.color = '#735c0f';
+                        el.textContent = `DB Status: could not read status (${err.message})`;
+                    });
+            })();
+        </script>
         <script>
             document.addEventListener('DOMContentLoaded', async () => {
                 // Wait for AuthSystem to initialize

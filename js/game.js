@@ -30,6 +30,8 @@ class GameController {
     this.isPaused = false;
     this.isGameActive = false;
     this.gridElement = null;
+    this.swapMode = false;
+    this.swapFirst = null;
 
     this.initializeGame();
   }
@@ -73,6 +75,7 @@ class GameController {
     const resetBtn = document.getElementById("reset-btn");
     const hintBtn = document.getElementById("hint-btn");
     const previewBtn = document.getElementById("preview-btn");
+    const swapToggleBtn = document.getElementById("swap-toggle-btn");
 
     if (shuffleBtn) {
       shuffleBtn.addEventListener("click", () => this.shuffle());
@@ -101,6 +104,16 @@ class GameController {
         if (window.hintSystem) {
           window.hintSystem.showPreview();
         }
+      });
+    }
+
+    if (swapToggleBtn) {
+      swapToggleBtn.addEventListener("click", () => {
+        this.swapMode = !this.swapMode;
+        this.swapFirst = null;
+        swapToggleBtn.textContent = this.swapMode
+          ? "Swap Adjacent (On)"
+          : "Swap Adjacent";
       });
     }
   }
@@ -163,6 +176,43 @@ class GameController {
         );
       }
       this.startGame();
+    }
+
+    // Swap adjacent mode: select two adjacent non-empty tiles to swap
+    if (this.swapMode) {
+      const value = this.puzzle.grid[row][col];
+      if (value === 0) {
+        // ignore empty
+      } else if (!this.swapFirst) {
+        this.swapFirst = { row, col };
+        // highlight selection briefly
+        const selector = `.puzzle-tile[data-row='${row}'][data-col='${col}']`;
+        const el = this.gridElement.querySelector(selector);
+        if (el) {
+          el.classList.add("hint-highlight");
+          setTimeout(() => el.classList.remove("hint-highlight"), 600);
+        }
+      } else {
+        const r1 = this.swapFirst.row,
+          c1 = this.swapFirst.col;
+        const r2 = row,
+          c2 = col;
+        const adjacent = Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1;
+        if (adjacent && this.puzzle.swapAdjacent(r1, c1, r2, c2)) {
+          this.swapFirst = null;
+          this.renderGrid();
+          this.updateMoveCounter();
+          this.playMoveSound();
+          if (this.puzzle.isSolved()) {
+            this.handleWin();
+          }
+          return;
+        } else {
+          // invalid second selection, reset
+          this.swapFirst = null;
+        }
+      }
+      return;
     }
 
     if (this.puzzle.move(row, col)) {

@@ -245,7 +245,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // Trigger story modal for initial puzzle if gameController is already loaded
   if (window.gameController) {
     setTimeout(() => {
-      window.storySystem.onPuzzleSizeChange(window.gameController.currentSize);
+      const size = window.gameController.currentSize;
+      const sessionKey = `story_shown_${size}`;
+      // Show intro once per session even if DB marked completed
+      if (!sessionStorage.getItem(sessionKey)) {
+        window.storySystem.showStory(size);
+        sessionStorage.setItem(sessionKey, "1");
+      } else {
+        window.storySystem.onPuzzleSizeChange(size);
+      }
     }, 500);
   }
 });
